@@ -5,15 +5,26 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Smart Bengkel Inventory — Bengkel RBT</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<meta name="theme-color" content="#243E55">
+<meta name="description" content="Sistem pengurusan stok Bengkel RBT">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Smart Bengkel">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<!-- Pustaka disimpan dalam repo (vendor/) supaya PWA & APK tidak bergantung pada CDN -->
+<script src="vendor/lucide.min.js"></script>
+<script src="vendor/chart.umd.js"></script>
+<script src="vendor/jspdf.umd.min.js"></script>
+<script src="vendor/jspdf.plugin.autotable.min.js"></script>
+<script src="vendor/xlsx.full.min.js"></script>
 <style>
+@font-face{font-family:'Poppins';font-style:normal;font-weight:400;font-display:swap;src:url(vendor/fonts/poppins-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Poppins';font-style:normal;font-weight:500;font-display:swap;src:url(vendor/fonts/poppins-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Poppins';font-style:normal;font-weight:600;font-display:swap;src:url(vendor/fonts/poppins-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Poppins';font-style:normal;font-weight:700;font-display:swap;src:url(vendor/fonts/poppins-latin-700-normal.woff2) format('woff2')}
 *{box-sizing:border-box}
 :root{
   --bg:#8FA9B8; --side:#243E55; --card:#AFC8D5; --accent:#2F8794; --text:#182B3A;
@@ -376,7 +387,7 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
       <div class="field"><label for="lgPw">Kata Laluan</label>
         <div class="pw-wrap"><input id="lgPw" name="kataLaluan" type="password" required autocomplete="current-password"><button type="button" class="pw-eye" aria-label="Papar kata laluan"><i data-lucide="eye"></i></button></div></div>
       <button class="btn btn-primary" type="submit"><i data-lucide="log-in"></i> Log Masuk</button>
-      <div class="small"><button type="button" class="link" data-tab="forgot">Lupa kata laluan?</button></div>
+      <div class="small"><button type="button" class="link" data-tab="forgot">Lupa kata laluan?</button><button type="button" class="link installBtn" hidden style="margin-left:14px">Pasang app di peranti ini</button></div>
     </form>
 
     <form id="fmRegister" hidden autocomplete="off">
@@ -432,6 +443,7 @@ table.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
       <button class="ibtn menu-btn" id="menuBtn" aria-label="Buka menu"><i data-lucide="menu"></i></button>
       <h1 id="pageTitle">Dashboard</h1>
       <label class="tsearch"><i data-lucide="search"></i><input id="globalSearch" placeholder="Cari barang, kod, jenama..." autocomplete="off"></label>
+      <button class="ibtn installBtn" hidden aria-label="Pasang app" title="Pasang app di peranti ini"><i data-lucide="download"></i></button>
       <div style="position:relative">
         <button class="ibtn" id="bellBtn" aria-label="Notifikasi"><i data-lucide="bell"></i><span class="dot" id="bellDot" hidden>0</span></button>
         <div class="card dropdown" id="bellMenu" hidden></div>
@@ -482,6 +494,8 @@ const PALET = ['#2F8794', '#5aa9aa', '#8fd0c9', '#7c86b8', '#a9b0d6', '#243E55',
 /* ======================= UTILITI ======================= */
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
+/* true bila berjalan sebagai APK (Capacitor) */
+const NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
 const view = () => $('#view');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const fmtNum = n => Number(n || 0).toLocaleString('ms-MY');
@@ -656,6 +670,19 @@ const SVG_GEARS = `<svg viewBox="0 0 150 170" xmlns="http://www.w3.org/2000/svg"
 const SVG_STAR = `<svg class="star" viewBox="0 0 60 60" aria-hidden="true"><defs><radialGradient id="st" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#9fbdcc"/></radialGradient></defs>
 <path d="M30 4l7.6 15.6 17.2 2.5-12.4 12.1 2.9 17.1L30 43.2 14.7 51.3l2.9-17.1L5.2 22.1l17.2-2.5z" fill="url(#st)" stroke="#7e9aab" stroke-width="1.5" stroke-linejoin="round"/>
 <circle cx="24" cy="28" r="2" fill="#243E55"/><circle cx="36" cy="28" r="2" fill="#243E55"/><path d="M25 35q5 4 10 0" stroke="#243E55" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`;
+
+/* ======================= PWA ======================= */
+let installEvt = null;
+function syncInstallBtns() { $$('.installBtn').forEach(b => { b.hidden = !installEvt; }); }
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installEvt = e; syncInstallBtns(); });
+window.addEventListener('appinstalled', () => { installEvt = null; syncInstallBtns(); toast('App dipasang. Buka dari skrin utama.', 'ok'); });
+document.addEventListener('click', async (e) => {
+  if (!e.target.closest('.installBtn') || !installEvt) return;
+  installEvt.prompt(); await installEvt.userChoice.catch(() => null); installEvt = null; syncInstallBtns();
+});
+if ('serviceWorker' in navigator && !NATIVE && location.protocol === 'https:' && !/script\.google|googleusercontent/.test(location.host)) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
 
 /* ======================= MULA ======================= */
 document.addEventListener('DOMContentLoaded', async () => {
@@ -1411,7 +1438,20 @@ function repMatrix(r) {
   const tot = Object.keys(r.jumlah || {}).length ? [''].concat(r.columns.map((c, i) => c.key in r.jumlah ? cellVal(c, r.jumlah[c.key], true) : (i === 0 ? 'JUMLAH' : ''))) : null;
   return { head, body, tot };
 }
-function download(blob, name) {
+/* Dalam APK (Capacitor), pautan muat turun biasa tidak berfungsi: fail ditulis ke cache
+   peranti dan dibuka melalui menu Kongsi Android (Drive, WhatsApp, Gmail, cetak, dll). */
+function blobToBase64(blob) {
+  return new Promise((ok, ko) => { const fr = new FileReader(); fr.onload = () => ok(String(fr.result).split(',')[1]); fr.onerror = ko; fr.readAsDataURL(blob); });
+}
+async function download(blob, name) {
+  if (NATIVE) {
+    try {
+      const Filesystem = window.Capacitor.registerPlugin('Filesystem'), Share = window.Capacitor.registerPlugin('Share');
+      const w = await Filesystem.writeFile({ path: name, data: await blobToBase64(blob), directory: 'CACHE' });
+      await Share.share({ title: name, files: [w.uri], dialogTitle: 'Simpan atau kongsi ' + name });
+    } catch (e) { if (!/cancel/i.test(e && e.message || '')) toast('Gagal menyimpan fail: ' + (e.message || e), 'err'); }
+    return;
+  }
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
   setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800);
 }
@@ -1420,7 +1460,7 @@ function exportCSV(r) {
   const q = v => { const s = String(v ?? ''); return /[",\n;]/.test(s) || /^[=+\-@]/.test(s) ? '"' + (/^[=+\-@]/.test(s) ? "'" : '') + s.replace(/"/g, '""') + '"' : s; };
   const lines = [[r.tajuk], [r.sekolah.nama], ['Tempoh: ' + r.tempoh], [], head].concat(body).concat(tot ? [tot] : []);
   download(new Blob(['﻿' + lines.map(l => l.map(q).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' }), repFile(r, 'csv'));
-  toast('Fail CSV dimuat turun.', 'ok');
+  toast(NATIVE ? 'Fail CSV sedia. Pilih tempat simpan.' : 'Fail CSV dimuat turun.', 'ok');
 }
 function exportXLSX(r) {
   if (!window.XLSX) return toast('Pustaka Excel gagal dimuatkan. Guna CSV.', 'err');
@@ -1429,7 +1469,8 @@ function exportXLSX(r) {
   const ws = XLSX.utils.aoa_to_sheet(aoa);
   ws['!cols'] = head.map((h, i) => ({ wch: Math.min(40, Math.max(6, h.length + 2, ...body.slice(0, 200).map(row => String(row[i] ?? '').length + 1))) }));
   const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Laporan');
-  XLSX.writeFile(wb, repFile(r, 'xlsx')); toast('Fail Excel dimuat turun.', 'ok');
+  download(new Blob([XLSX.write(wb, { bookType: 'xlsx', type: 'array' })], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), repFile(r, 'xlsx'));
+  toast(NATIVE ? 'Fail Excel sedia. Pilih tempat simpan.' : 'Fail Excel dimuat turun.', 'ok');
 }
 function exportPDF(r) {
   if (!window.jspdf) return toast('Pustaka PDF gagal dimuatkan. Guna fungsi Cetak → Simpan sebagai PDF.', 'err');
@@ -1466,9 +1507,10 @@ function exportPDF(r) {
   });
   const n = doc.internal.getNumberOfPages();
   for (let i = 1; i <= n; i++) { doc.setPage(i); doc.setFontSize(7.5); doc.setTextColor(110); doc.text(`Smart Bengkel Inventory · Halaman ${i} / ${n}`, W / 2, H - 7, { align: 'center' }); doc.setTextColor(0); }
-  doc.save(repFile(r, 'pdf')); toast('Fail PDF dimuat turun.', 'ok');
+  download(doc.output('blob'), repFile(r, 'pdf')); toast(NATIVE ? 'Fail PDF sedia. Pilih tempat simpan atau cetak.' : 'Fail PDF dimuat turun.', 'ok');
 }
 function printReport(r) {
+  if (NATIVE) { toast('Dalam app, laporan dijana sebagai PDF. Pilih "Cetak" dalam menu Kongsi.', 'info'); return exportPDF(r); }
   const { head, body, tot } = repMatrix(r);
   const num = r.columns.map(c => c.type === 'num' || c.type === 'rm');
   $('#printArea').innerHTML = `<div class="ph"><h1>${esc((r.sekolah.nama || 'NAMA SEKOLAH').toUpperCase())}</h1>${r.sekolah.alamat ? `<div>${esc(r.sekolah.alamat)}</div>` : ''}<div>${esc(r.sekolah.bengkel)}</div><h2>${esc(r.tajuk.toUpperCase())}</h2></div>

@@ -1,0 +1,21 @@
+{
+  "name": "smart-bengkel-inventory",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Smart Bengkel Inventory: PWA + APK hybrid (Capacitor)",
+  "scripts": {
+    "build:www": "node scripts/build-www.mjs",
+    "android:init": "npm run build:www && npx cap add android && npx @capacitor/assets generate --android",
+    "android:sync": "npm run build:www && npx cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.6.0",
+    "@capacitor/core": "8.6.0",
+    "@capacitor/filesystem": "8.1.5",
+    "@capacitor/share": "8.0.3"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "4.0.0",
+    "@capacitor/cli": "8.6.0"
+  }
+}

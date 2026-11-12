@@ -1,0 +1,21 @@
+{
+  "id": "./",
+  "name": "Smart Bengkel Inventory",
+  "short_name": "Smart Bengkel",
+  "description": "Sistem pengurusan stok Bengkel RBT: barang masuk, keluar, pinjaman, stok rendah dan laporan.",
+  "lang": "ms",
+  "dir": "ltr",
+  "start_url": "./?sumber=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#8FA9B8",
+  "theme_color": "#243E55",
+  "categories": ["education", "productivity", "business"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

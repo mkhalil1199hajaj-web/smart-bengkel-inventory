@@ -1,0 +1,9 @@
+{
+  "appId": "com.smartbengkel.rbt",
+  "appName": "Smart Bengkel",
+  "webDir": "www",
+  "backgroundColor": "#8FA9B8",
+  "android": {
+    "allowMixedContent": false
+  }
+}
